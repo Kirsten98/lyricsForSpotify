@@ -9,15 +9,13 @@ public class ThreadControl{
 
     protected Thread currentSongCheckThread,expiredTokenRefresh, songProgressThread;
     LyricsForSpotifyApplication parent;
-    private boolean currentSongCheckExit = false;
-    private boolean expiredTokenRefreshExit = false;
-    private boolean songProgressThreadExit = false;
+    protected boolean currentSongCheckExit = false;
+    protected boolean expiredTokenRefreshExit = false;
+    protected boolean songProgressThreadExit = false;
 
     public ThreadControl(LyricsForSpotifyApplication parent){
         this.parent = parent;
-    }
 
-    public void startCurrentSongCheckThread() {
         currentSongCheckThread = new Thread(new Runnable() {
             @Override
             public void run() {
@@ -27,19 +25,11 @@ public class ThreadControl{
             }
         });
 
-        currentSongCheckThread.start();
-    }
-
-    public void interruptCurrentSongCheckThread() {
-        currentSongCheckThread.interrupt();
-    }
-
-    public void expiredTokenRefreshStart() {
         expiredTokenRefresh = new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
-                    while (expiredTokenRefresh != null || expiredTokenRefresh.isInterrupted() || !expiredTokenRefresh.isAlive() && !expiredTokenRefreshExit) {
+                    while (!expiredTokenRefreshExit) {
                         TimeUnit.SECONDS.sleep(parent.userAuthorization.getExpires_in() - 10);
                         URL accessTokenRefreshURL = new URL("https://accounts.spotify.com/api/token?grant_type=refresh_token&refresh_token=" + parent.userAuthorization.getRefresh_token() + "&client_id=" + Configuration.getClientID() + "&client_secret="+ Configuration.getClientSecret());
                         HttpURLConnection connection = (HttpURLConnection) accessTokenRefreshURL.openConnection();
@@ -78,57 +68,72 @@ public class ThreadControl{
                 }
             }
         });
+
+        songProgressThread = new Thread(new Runnable() {
+            @Override
+            public void run(){
+                try {
+                    while (songProgressThread != null || songProgressThread.isInterrupted() || !songProgressThread.isAlive() && !songProgressThreadExit){
+                        TimeUnit.MILLISECONDS.sleep(100);
+                        URL playerURL = new URL("https://api.spotify.com/v1/me/player/currently-playing");
+                        HttpURLConnection connection  = (HttpURLConnection) playerURL.openConnection();
+                        connection.setRequestMethod("GET");
+                        connection.setRequestProperty("Authorization", "Bearer " + parent.userAuthorization.getAccess_token());
+
+                        System.out.println("Progress response Code: " + connection.getResponseCode());
+                        if (connection.getResponseCode() == 200){
+                            String input;
+                            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+                            while ((input = bufferedReader.readLine()) != null){
+                                String[] inputSplit = input.split(":|,");
+                                switch (inputSplit[0].replace(" ","")) {
+                                    case "\"progress_ms\"":
+                                        System.out.println("Current progress: "+inputSplit[1]);
+                                        parent.currentSongProgressMS = Double.parseDouble(inputSplit[1].replace("\"","").replace(" ",""));
+                                        break;
+
+                                    case "\"duration_ms\"":
+                                        System.out.println("Current duration: "+inputSplit[1]);
+                                        parent.currentSongDuration = Double.parseDouble(inputSplit[1].replace("\"","").replace(" ",""));
+
+                                        break;
+                                }
+                            }
+                            parent.scrollPane.setVvalue((parent.currentSongProgressMS / parent.currentSongDuration)*100);
+                            System.out.println(parent.scrollPane.getVvalue());
+                        }else {
+                            System.out.println("Error during song progress check: Error Code " + connection.getResponseCode());
+                        }
+                    }
+
+                } catch (Exception e){
+                    songProgressThread.interrupt();
+                    System.out.println(e.getMessage());
+                    songProgressThreadStart();
+                }
+            }
+        });
+
+    }
+
+    public void startCurrentSongCheckThread() {
+        currentSongCheckExit = false;
+        currentSongCheckThread.start();
+    }
+
+    public void interruptCurrentSongCheckThread() {
+        currentSongCheckThread.interrupt();
+    }
+
+    public void expiredTokenRefreshStart() {
+        expiredTokenRefreshExit = false;
         expiredTokenRefresh.start();
     }
 
     protected void songProgressThreadStart() {
-            songProgressThread = new Thread(new Runnable() {
-                @Override
-                public void run(){
-                    try {
-                        while (songProgressThread != null || songProgressThread.isInterrupted() || !songProgressThread.isAlive() && !songProgressThreadExit){
-                            TimeUnit.MILLISECONDS.sleep(100);
-                            URL playerURL = new URL("https://api.spotify.com/v1/me/player/currently-playing");
-                            HttpURLConnection connection  = (HttpURLConnection) playerURL.openConnection();
-                            connection.setRequestMethod("GET");
-                            connection.setRequestProperty("Authorization", "Bearer " + parent.userAuthorization.getAccess_token());
-
-                            System.out.println("Progress response Code: " + connection.getResponseCode());
-                            if (connection.getResponseCode() == 200){
-                                String input;
-                                BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-                                while ((input = bufferedReader.readLine()) != null){
-                                    String[] inputSplit = input.split(":|,");
-                                    switch (inputSplit[0].replace(" ","")) {
-                                        case "\"progress_ms\"":
-                                            System.out.println("Current progress: "+inputSplit[1]);
-                                            parent.currentSongProgressMS = Double.parseDouble(inputSplit[1].replace("\"","").replace(" ",""));
-                                            break;
-
-                                        case "\"duration_ms\"":
-                                            System.out.println("Current duration: "+inputSplit[1]);
-                                            parent.currentSongDuration = Double.parseDouble(inputSplit[1].replace("\"","").replace(" ",""));
-
-                                            break;
-                                    }
-                                }
-                                parent.scrollPane.setVvalue((parent.currentSongProgressMS / parent.currentSongDuration)*100);
-                                System.out.println(parent.scrollPane.getVvalue());
-                            }else {
-                                System.out.println("Error during song progress check: Error Code " + connection.getResponseCode());
-                            }
-                        }
-
-                    } catch (Exception e){
-                        songProgressThread.interrupt();
-                        System.out.println(e.getMessage());
-                        songProgressThreadStart();
-                    }
-
-                }
-            });
+            songProgressThreadExit = false;
             songProgressThread.start();
-}
+    }
 
     public void resetThreads() {
         currentSongCheckExit = true;
@@ -145,13 +150,6 @@ public class ThreadControl{
             songProgressThread.interrupt();
         }
 
-        currentSongCheckThread = new Thread();
-        expiredTokenRefresh = new Thread();
-        songProgressThread  = new Thread();
-
-        currentSongCheckExit = false;
-        expiredTokenRefreshExit = false;
-        songProgressThreadExit = false;
     }
 
 }

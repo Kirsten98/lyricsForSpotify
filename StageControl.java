@@ -1,4 +1,4 @@
-import javafx.event.EventHandler;
+
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -28,7 +28,7 @@ public class StageControl extends LyricsForSpotifyApplication{
 
     public StageControl(LyricsForSpotifyApplication parent) {
         mainStage = new Stage();
-        mainStage.initStyle(StageStyle.TRANSPARENT);
+        mainStage.initStyle(StageStyle.UNDECORATED);
         mainStage.setScene(mainScene);
 
         mainMenu = parent.getMenubar();
@@ -68,8 +68,7 @@ public class StageControl extends LyricsForSpotifyApplication{
      * @return mainStage with configurations applied.
      */
     public void homeStage() {
-
-        mainStage.setTitle("New Application");
+        parent.applyConfigurations();
         mainPane.getChildren().clear();
         mainPane.setAlignment(Pos.TOP_CENTER);
         mainPane.setStyle("-fx-background-radius: 10; -fx-background-color: "+ textConfigurations.getBackgroundColor() +"; -fx-border-color: "+ textConfigurations.getBorderColor() + "; -fx-border-radius: 10; -fx-border-width: "+textConfigurations.getBorderSize()+";");
@@ -96,6 +95,7 @@ public class StageControl extends LyricsForSpotifyApplication{
      * @return mainStage with the configurations applied
      */
     public void authorizationStage() {
+        parent.applyConfigurations();
         mainPane.getChildren().clear();
         mainPane.setAlignment(Pos.CENTER_LEFT);
 
@@ -110,7 +110,7 @@ public class StageControl extends LyricsForSpotifyApplication{
      * @return mainStage with the configurations applied
      */
     public void lyricsStage(ScrollPane scrollPane) {
-        parent.setUpLabels();
+        parent.applyConfigurations();
 
         mainPane.getChildren().clear();
         mainPane.setAlignment(Pos.TOP_LEFT);
@@ -133,7 +133,7 @@ public class StageControl extends LyricsForSpotifyApplication{
      */
     public void errorStage(String errorMessage, Boolean forLyrics) {
         mainPane.getChildren().clear();
-        parent.setUpLabels();
+        parent.applyConfigurations();
 
 
         if(forLyrics) {
@@ -165,14 +165,12 @@ public class StageControl extends LyricsForSpotifyApplication{
             scrollPane.setContent(errorLabel);
             mainPane.getChildren().addAll(mainMenu,song == null? new Text("No song playing"): song,artist == null? new Text("No song playing"): artist, errorLabel);
 
-            mainStage.setTitle("Check if current song is still playing");
             if (threadControl.currentSongCheckThread == null || threadControl.currentSongCheckThread.isInterrupted() || !threadControl.currentSongCheckThread.isAlive()){
                 threadControl.startCurrentSongCheckThread();
             }
 
         } else {
             mainPane.setAlignment(Pos.CENTER);
-            mainStage.setTitle(errorMessage);
             Button retry = new Button("Retry");
             retry.setPrefWidth(150);
             retry.setOnAction(retryAction ->{
@@ -194,6 +192,11 @@ public class StageControl extends LyricsForSpotifyApplication{
     public Stage getMainStage() {
         return mainStage;
     }
+
+    public VBox getMainPane() {
+        return mainPane;
+    }
+
 
     public double getStageHeight() {
         return mainStage.getHeight();

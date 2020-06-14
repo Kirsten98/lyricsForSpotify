@@ -41,7 +41,7 @@ public class LyricsForSpotifyApplication extends Application {
      * Variables for the current track information from Spotify and APISeed API's
      */
     protected static TextConfigurations textConfigurations = new TextConfigurations();
-    protected StageControl stageControl;
+    protected static StageControl stageControl;
     protected ThreadControl threadControl = new ThreadControl(this);
 
     protected static String currentArtist;
@@ -2069,7 +2069,7 @@ public class LyricsForSpotifyApplication extends Application {
                 break;
 
             case("Check if current song is still playing"):
-                if (threadControl.currentSongCheckThread == null || threadControl.currentSongCheckThread.isInterrupted() || !threadControl.currentSongCheckThread.isAlive()){
+                if (threadControl.currentSongCheckThread == null || threadControl.currentSongCheckThread.isInterrupted() || !threadControl.currentSongCheckThread.isAlive() && !threadControl.currentSongCheckExit){
 
                     threadControl.startCurrentSongCheckThread();
                 }
@@ -2169,7 +2169,6 @@ public class LyricsForSpotifyApplication extends Application {
             if(connection.getResponseCode() != 200){
                 if (connection.getResponseCode() == 204){
                     stageControl.errorStage("No track playing", true);
-                    stageControl.getMainStage().setTitle("No track playing");
                     connection.disconnect();
 
                 }else {
@@ -2493,7 +2492,7 @@ public class LyricsForSpotifyApplication extends Application {
 
 
 
-    protected static void setUpLabels(){
+    protected static void applyConfigurations(){
 
         song.setText("Song: " + currentSong);
         song.setFill(Paint.valueOf(textConfigurations.getTextColor()));
@@ -2511,6 +2510,10 @@ public class LyricsForSpotifyApplication extends Application {
         currentLyrics.setFill(Paint.valueOf(textConfigurations.getTextColor()));
         currentLyrics.setStroke(Paint.valueOf(textConfigurations.getTextOutLine()));
         currentLyrics.setStyle("-fx-font-size: "+ textConfigurations.getLyricTextSize() +"; -fx-text-fill: " + textConfigurations.getTextColor() +"; ");
+
+        stageControl.getMainPane().setStyle("-fx-background-radius: 10; -fx-background-color: "+ textConfigurations.getBackgroundColor() +"; -fx-border-color: "+ textConfigurations.getBorderColor() + "; -fx-border-radius: 10; -fx-border-width: "+textConfigurations.getBorderSize()+";");
+
+
     }
 
     protected MenuBar getMenubar() {

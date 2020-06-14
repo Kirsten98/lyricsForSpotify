@@ -71,7 +71,7 @@ public class Settings {
             textConfigurations.setSongTextSize((int) songSizeSlider.getValue());
             textConfigurations.setTextOutlineWidth((double) textOutLineWidthSlider.getValue());
             textConfigurations.setTextOutLine(textOutlineColor.getValue().replace(" ",""));
-            LyricsForSpotifyApplication.setUpLabels();
+            LyricsForSpotifyApplication.applyConfigurations();
         });
 
 
