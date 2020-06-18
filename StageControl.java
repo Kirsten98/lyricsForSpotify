@@ -21,6 +21,7 @@ public class StageControl extends LyricsForSpotifyApplication{
     private Scene mainScene = new Scene(mainPane,600,900);
     private Stage mainStage;
     protected LyricsForSpotifyApplication parent;
+    private Authorization authorization = Authorization.getInstance();
     private MenuBar mainMenu;
     double xOffset;
     double yOffset;
@@ -69,6 +70,7 @@ public class StageControl extends LyricsForSpotifyApplication{
      */
     public void homeStage() {
         parent.applyConfigurations();
+        Authorization.resetAuthentication();
         mainPane.getChildren().clear();
         mainPane.setAlignment(Pos.TOP_CENTER);
         mainPane.setStyle("-fx-background-radius: 10; -fx-background-color: "+ textConfigurations.getBackgroundColor() +"; -fx-border-color: "+ textConfigurations.getBorderColor() + "; -fx-border-radius: 10; -fx-border-width: "+textConfigurations.getBorderSize()+";");
@@ -165,9 +167,9 @@ public class StageControl extends LyricsForSpotifyApplication{
             scrollPane.setContent(errorLabel);
             mainPane.getChildren().addAll(mainMenu,song == null? new Text("No song playing"): song,artist == null? new Text("No song playing"): artist, errorLabel);
 
-            if (threadControl.currentSongCheckThread == null || threadControl.currentSongCheckThread.isInterrupted() || !threadControl.currentSongCheckThread.isAlive()){
-                threadControl.startCurrentSongCheckThread();
-            }
+//            if (threadControl.currentSongCheckThread == null || threadControl.currentSongCheckThread.isInterrupted() || !threadControl.currentSongCheckThread.isAlive()){
+//                threadControl.startCurrentSongCheckThread();
+//            }
 
         } else {
             mainPane.setAlignment(Pos.CENTER);

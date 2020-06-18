@@ -27,7 +27,7 @@ public class LyricsForSpotifyApplication extends Application {
     protected String redirectURI ="http://localhost:8080";
     private String deviceID;
 
-    protected Authorization userAuthorization = new Authorization();
+    protected Authorization userAuthorization = Authorization.getInstance();
     private static Logger logger = Logger.getLogger(LyricsForSpotifyApplication.class.getName());
 
 
@@ -2069,7 +2069,7 @@ public class LyricsForSpotifyApplication extends Application {
                 break;
 
             case("Check if current song is still playing"):
-                if (threadControl.currentSongCheckThread == null || threadControl.currentSongCheckThread.isInterrupted() || !threadControl.currentSongCheckThread.isAlive() && !threadControl.currentSongCheckExit){
+                if (threadControl.currentSongCheckThread == null || threadControl.currentSongCheckThread.isInterrupted() || !threadControl.currentSongCheckThread.isAlive()){
 
                     threadControl.startCurrentSongCheckThread();
                 }
@@ -2220,7 +2220,7 @@ public class LyricsForSpotifyApplication extends Application {
             if(connection.getResponseCode() != 200){
                logger.log(Level.INFO, "-----> Error in isCurrentSongStillPlaying() <----- \nResponse Code: " + connection.getResponseCode());
                connection.disconnect();
-                runStepBasedOnStatus("Check if current song is still playing");
+                isCurrentSongStillPlaying();
                //TODO Enhancement: Handle no track playing to possibly allow user to start music
             }else {
                 BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
@@ -2249,7 +2249,7 @@ public class LyricsForSpotifyApplication extends Application {
 
                     currentSong = tempCurrentSong;
                     currentArtist = tempCurrentArtist;
-                    threadControl.interruptCurrentSongCheckThread();
+//                    threadControl.interruptCurrentSongCheckThread();
                     Platform.runLater(new Runnable() {
                         @Override
                         public void run() {
@@ -2260,7 +2260,7 @@ public class LyricsForSpotifyApplication extends Application {
                 }
                 else{
                     System.out.println(currentSong + " is still playing");
-                    runStepBasedOnStatus("Check if current song is still playing");
+                    isCurrentSongStillPlaying();
                 }
 
             }
@@ -2421,7 +2421,7 @@ public class LyricsForSpotifyApplication extends Application {
                     String[] errorSplit2 = error[1].split("&");
                     String errorReason = errorSplit2[0];
                     System.out.println("Error Reason: " + errorReason);
-                    stageControl.errorStage(errorReason, false);
+                    stageControl.homeStage();
                 }
             }
         });

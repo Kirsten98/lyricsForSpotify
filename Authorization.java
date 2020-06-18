@@ -2,45 +2,57 @@ public class Authorization {
     /**
      * Variables of various types of tokens retrieved from Spotify API's
      */
-    private String authorizationToken;
-    private String access_token;
-    private String refresh_token;
-    private int expires_in;
+    private static String authorizationToken;
+    private static String access_token;
+    private static String refresh_token;
+    private static int expires_in;
 
+    private static Authorization instance = null;
 
-    public String getAuthorizationToken() {
+    private Authorization(){
+
+    }
+
+    public static Authorization getInstance() {
+        if (instance == null) {
+            return new Authorization();
+        } else {
+            return instance;
+        }
+    }
+    public static String getAuthorizationToken() {
         return authorizationToken;
     }
 
-    public void setAuthorizationToken(String authorizationToken) {
-        this.authorizationToken = authorizationToken;
+    public static void setAuthorizationToken(String newAuthorizationToken) {
+        authorizationToken = newAuthorizationToken;
     }
 
-    public String getAccess_token() {
+    public static String getAccess_token() {
         return access_token;
     }
 
-    public void setAccess_token(String access_token) {
-        this.access_token = access_token;
+    public static void setAccess_token(String newAccessToken) {
+        access_token = newAccessToken;
     }
 
-    public String getRefresh_token() {
+    public static String getRefresh_token() {
         return refresh_token;
     }
 
-    public void setRefresh_token(String refresh_token) {
-        this.refresh_token = refresh_token;
+    public static void setRefresh_token(String newRefreshToken) {
+        refresh_token = newRefreshToken;
     }
 
-    public int getExpires_in() {
+    public static int getExpires_in() {
         return expires_in;
     }
 
-    public void setExpires_in(int expires_in) {
-        this.expires_in = expires_in;
+    public static void setExpires_in(int newExpiresIn) {
+        expires_in = newExpiresIn;
     }
 
-    protected void resetAuthentication () {
+    public static void resetAuthentication () {
         authorizationToken = "";
         access_token = "";
         refresh_token = "";

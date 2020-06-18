@@ -121,9 +121,6 @@ public class ThreadControl{
         currentSongCheckThread.start();
     }
 
-    public void interruptCurrentSongCheckThread() {
-        currentSongCheckThread.interrupt();
-    }
 
     public void expiredTokenRefreshStart() {
         expiredTokenRefreshExit = false;
