@@ -155,19 +155,13 @@ public class StageControl extends LyricsForSpotifyApplication{
                 skipSong.setDisable(false);
             });
 
-            Button retry = new Button("Retry");
-            retry.setOnAction(retryAction ->{
-                parent.getCurrentSongInfo();
-            });
-
             HBox songOptions = new HBox(30);
-            songOptions.getChildren().addAll(retry,skipSong);
             songOptions.setAlignment(Pos.CENTER);
             mainPane.getChildren().clear();
             scrollPane.setContent(errorLabel);
             mainPane.getChildren().addAll(mainMenu,song == null? new Text("No song playing"): song,artist == null? new Text("No song playing"): artist, errorLabel);
-
-//            if (threadControl.currentSongCheckThread == null || threadControl.currentSongCheckThread.isInterrupted() || !threadControl.currentSongCheckThread.isAlive()){
+            parent.threadControl.startCurrentSongCheckThread();
+            //            if (threadControl.currentSongCheckThread == null || threadControl.currentSongCheckThread.isInterrupted() || !threadControl.currentSongCheckThread.isAlive()){
 //                threadControl.startCurrentSongCheckThread();
 //            }
 

@@ -2069,10 +2069,7 @@ public class LyricsForSpotifyApplication extends Application {
                 break;
 
             case("Check if current song is still playing"):
-                if (threadControl.currentSongCheckThread == null || threadControl.currentSongCheckThread.isInterrupted() || !threadControl.currentSongCheckThread.isAlive()){
-
                     threadControl.startCurrentSongCheckThread();
-                }
                 break;
 
 

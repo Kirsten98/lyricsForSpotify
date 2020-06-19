@@ -13,8 +13,12 @@ public class ThreadControl{
     protected boolean expiredTokenRefreshExit = false;
     protected boolean songProgressThreadExit = false;
 
-    public ThreadControl(LyricsForSpotifyApplication parent){
+    ThreadControl(LyricsForSpotifyApplication parent){
         this.parent = parent;
+
+    }
+
+    public void startCurrentSongCheckThread() {
 
         currentSongCheckThread = new Thread(new Runnable() {
             @Override
@@ -24,7 +28,11 @@ public class ThreadControl{
                     parent.isCurrentSongStillPlaying();
             }
         });
+            currentSongCheckThread.start();
+    }
 
+
+    public void expiredTokenRefreshStart() {
         expiredTokenRefresh = new Thread(new Runnable() {
             @Override
             public void run() {
@@ -69,6 +77,11 @@ public class ThreadControl{
             }
         });
 
+        expiredTokenRefresh.start();
+
+    }
+
+    protected void songProgressThreadStart() {
         songProgressThread = new Thread(new Runnable() {
             @Override
             public void run(){
@@ -114,22 +127,8 @@ public class ThreadControl{
             }
         });
 
-    }
+        songProgressThread.start();
 
-    public void startCurrentSongCheckThread() {
-        currentSongCheckExit = false;
-        currentSongCheckThread.start();
-    }
-
-
-    public void expiredTokenRefreshStart() {
-        expiredTokenRefreshExit = false;
-        expiredTokenRefresh.start();
-    }
-
-    protected void songProgressThreadStart() {
-            songProgressThreadExit = false;
-            songProgressThread.start();
     }
 
     public void resetThreads() {
@@ -146,6 +145,10 @@ public class ThreadControl{
         if (songProgressThread != null && !songProgressThread.isInterrupted()) {
             songProgressThread.interrupt();
         }
+
+        currentSongCheckExit = false;
+        expiredTokenRefreshExit = false;
+        songProgressThreadExit = false;
 
     }
 
